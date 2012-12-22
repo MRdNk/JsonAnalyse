@@ -1,0 +1,21 @@
+[{
+    "Category": "Cat1",
+    "Type": "Type1",
+    "Data1": "Bob",
+    "Data2": "House"
+},{
+    "Category": "Cat1",
+    "Type": "Type1",
+    "Data1": "Phil",
+    "Data2": "Flat"
+},{
+    "Category": "Cat2",
+    "Type": "Type2",
+    "Data1": "Margaret",
+    "Data2": "Pool"
+},{
+    "Category": "Cat2",
+    "Type": "Type2",
+    "Data1": "Jon",
+    "Data2": "Bedroom"
+}] 

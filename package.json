@@ -1,0 +1,25 @@
+{
+  "name": "jsonEvaluator",
+  "version": "0.0.0",
+  "description": "Evaluate a json file, check if there are duplicates, time-based clashes etc. Based on 'category' fields, and 'data' fields.",
+  "main": "index.js",
+  "dependencies": {
+    "csv2json-stream": "~0.0.3",
+    "underscore": "~1.4.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:MRdNk/JsonAnalyse.git"
+  },
+  "keywords": [
+    "json",
+    "analysis",
+    "analyse"
+  ],
+  "author": "mrdnk",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}

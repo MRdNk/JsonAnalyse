@@ -3,6 +3,7 @@ var util = require('util');
 var events = require('events');
 var _ = require('underscore');
 
+var Category = require('./lib/_category.js');
 
 function JsonAnalyse (filename) {
   events.EventEmitter.call(this);
@@ -27,7 +28,7 @@ function JsonAnalyse (filename) {
     if (err) {
       console.error(err);
     } else {
-      console.log(success);
+      // console.log(success);
       that.emit('fileloaded');
     }
   });
@@ -41,64 +42,75 @@ JsonAnalyse.prototype.evaluate = function (opts) {
   var that = this;
   that.opts = opts || {};
 
+  if (that.opts.catKeys) {
+    that.catKeys = that.opts.catKeys;
+  }
+
   that.categoryNames = [];
   that.categories = [];
 
-  that.on('fileloaded', fileLoaded);
   that.on('fileloaded', createCategories);
 
-  function fileLoaded () {
-    // console.log('that.data: ', that.data);
-    var Cat1s = _.filter(that.data, function (item) {
-      return item.Category === 'Cat1' && item.Type === 'Type1';
-    });
-    console.log('Cat1-Type1s: ',Cat1s);
-  }
-
   function createCategories () {
+
     _.each(that.data, function (item) {
-      if (that.categoryNames.indexOf(item.Category) === -1) {
-        that.categoryNames.push(item.Category);
+      var cat = new Category(that.catKeys);
+
+      _.each(that.catKeys, function (key) {
+        cat.addValue({key: key, value: item[key]});
+      });
+
+      if (!isObjectInArray(that.catKeys, that.categories, cat)) {
+        that.categories.push(cat);
       }
+
     });
 
-    createCategoryItemsFromArray();
     _.each(that.categories, function (cat) {
       filterDataToCategories(cat);
     });
 
-    // console.log('categoryNames: ', that.categoryNames);
-    console.log('categories: ', JSON.stringify(that.categories,null,4));
-  }
-
-  function createCategoryItemsFromArray () {
-    _.each(that.categoryNames, function (catName) {
-      var cat = new Category(catName);
-      that.categories.push(cat);
-    });
+    // console.log('categories: ', JSON.stringify(that.categories,null,4));
+    that.emit('categories', that.categories);
   }
 
   function filterDataToCategories (category) {
     var items = _.filter(that.data, function (item) {
-      return item.Category === category.catname;
+      return isObjectInArray (that.catKeys, [category], item);
     });
     category.addItems(items);
   }
 
+  function isObjectInArray (keys, items, item) {
+    var count = 0;
+
+    // Iterate through items array
+    for(var i=0; i<items.length; i++) {
+
+      // Iterate through keys
+      for(var x=0; x<keys.length; x++) {
+        if (item[keys[x]] === items[i][keys[x]]) {
+          count ++;
+        }
+      }
+    }
+    if (count === keys.length)
+      return true;
+    return false;
+  }
+
 };
 
-function Category (catname, items) {
-  this.catname = catname;
-  this.items = items;
-}
-
-Category.prototype.addItem = function (item) {
-  this.items.push(item);
+JsonAnalyse.prototype.getCategories = function () {
+  var that = this;
+  that.on('categories', function (categories) {
+    console.log('categories: got');
+    return categories;
+  });
 };
 
-Category.prototype.addItems = function (items) {
-  this.items = items;
-};
-
-var analyse = new JsonAnalyse ('./data.json');
-analyse.evaluate();
+var analyse = new JsonAnalyse ('./data/data.json');
+analyse.evaluate({catKeys: ['Category', 'Type']});
+analyse.on('categories', function (categories) {
+  console.log(JSON.stringify(categories,null,4));
+});
